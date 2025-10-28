@@ -1,0 +1,75 @@
+.taskSection {
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.taskSection > :first-child {
+    align-self: center;
+}
+
+.taskList {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    height: 90%;
+    gap: 5%;
+}
+
+.task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: auto;
+}
+
+.status {
+    border: 1px solid grey;
+    background-color: rgba(240, 225, 225, 0.89);
+    border-radius: 10px;
+    width: 6em;
+    height: fit-content;
+    text-align: center;
+}
+
+.status p {
+    color: grey;
+    font-weight: bold;
+}
+
+.taskDiv {
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: auto;
+    justify-content: flex-start;
+    width:15%;
+}
+
+.taskDiv p {
+    margin:0;
+}
+.actionButtons {
+    border: none;
+    background-color: #f9f9f9;
+}
+
+.plusButtonContainer {
+    align-self: flex-end;
+    height:12%;
+    border-radius: 10px;
+    width: 20%;
+    background-color: #703EFF;
+    border: none;
+}
+.plusButtonContainer div{
+    display: flex;
+    place-content: center;
+    place-items: center;
+    gap: 14%;
+}
+
+.plusButtonContainer p {
+    color:#f9f9f9;
+    font-weight: bold;
+}
