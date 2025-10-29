@@ -1,0 +1,44 @@
+.priorityList {
+  display: flex;
+  gap: 0.5rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+.priorityHigh,
+.priorityMedium,
+.priorityLow {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.priorityHigh {
+  border: 1px solid red;
+  color: red;
+}
+.priorityHigh.active {
+  background-color: red;
+  color: white;
+}
+
+.priorityMedium {
+  border: 1px solid orange;
+  color: orange;
+}
+.priorityMedium.active {
+  background-color: orange;
+  color: white;
+}
+
+.priorityLow {
+  border: 1px solid limegreen;
+  color: limegreen;
+}
+.priorityLow.active {
+  background-color: limegreen;
+  color: white;
+}
