@@ -4,6 +4,8 @@ import {useState} from "react";
 
 import styles from "./TaskList.module.css";
 import {AddTaskModal} from "./AddTaskModal";
+import {EditTaskModal} from "./EditTaskModal";
+import {DeleteTaskModal} from "./DeleteModal";
 
 import {DeleteIconSvg} from "@/lib/DeleteIcon";
 import {EditIconSvg} from "@/lib/EditIcon";
@@ -42,15 +44,38 @@ export function TaskList() {
       priority: "High",
     },
   ]);
-  //   const [newTask, setNewTask] = useState<Omit<Task, "id">>({
-  //     name: "",
-  //     status: "To Do",
-  //     priority: "Medium",
-  //   });
-
+  // Para añadir
   const [inputText, setInputText] = useState<Task["name"]>("");
-  const [inputPriority, setInputPriority] = useState<Priority>("High");
+  const [inputPriority, setInputPriority] = useState<Priority>("Low");
+
+  // 🔽 Nuevo: para editar
+  const [editText, setEditText] = useState<Task["name"]>("");
+  const [editPriority, setEditPriority] = useState<Priority>("Medium");
+
   const [isAddModalOpen, setToggleAddModal] = useState<boolean>(false);
+  const [isEditModalOpen, setToggleEditModal] = useState<boolean>(false);
+  const [isDeleteModalOpen, setToggleDeleteModal] = useState<boolean>(false);
+  const [selectedTask, setSelectedTask] = useState<Task>({
+    id: 0,
+    name: "",
+    status: "Done",
+    priority: "High",
+  });
+  const [selectedTaskToDelete, setSelectedTaskToDelete] = useState<Task>({
+    id: 0,
+    name: "",
+    status: "Done",
+    priority: "High",
+  });
+
+  // Handlers del modal de edición
+  const handleEditTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+
+  const handleEditTaskPriority = (newPriority: Task["priority"]) => {
+    return () => setEditPriority((prev) => (prev !== newPriority ? newPriority : prev));
+  };
 
   const handleTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
@@ -61,14 +86,6 @@ export function TaskList() {
     return () => setInputPriority((prev) => (prev !== newPriority ? newPriority : prev));
   };
 
-  //   const addTask = (task: Omit<Task, "id">) => {
-  //     setNewTask({
-  //       name: inputText,
-  //       priority: inputPriority,
-  //       status: task.status, // "To Do" por defecto
-  //     });
-  //   };
-
   const handleTaskSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputText !== "") {
@@ -78,9 +95,35 @@ export function TaskList() {
         status: "To Do", // por defecto
       };
 
-      //   addTask(task);
       addToTaskList(task);
+      setInputText("");
+      setInputPriority("Low");
+      setToggleAddModal(false);
     }
+  };
+  const handleTaskSubmitEdit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // no hace nada si no cambia nada
+    if (editText === selectedTask.name && editPriority === selectedTask.priority) {
+      return;
+    }
+
+    const taskToUpdate: Task = {
+      id: selectedTask.id,
+      name: editText,
+      priority: editPriority,
+      status: selectedTask.status,
+    };
+
+    editTaskList(taskToUpdate);
+    setToggleEditModal(false); // cerrar modal tras editar
+  };
+
+  const editTaskList = (task: Task) => {
+    const filteredTasks = taskList.filter((task) => task.id !== selectedTask.id);
+
+    setTaskList([...filteredTasks, task]);
   };
 
   const addToTaskList = (task: Omit<Task, "id">) => {
@@ -95,16 +138,42 @@ export function TaskList() {
     ]);
   };
 
-  const openModal = () => setToggleAddModal(true);
-  const closeModal = () => setToggleAddModal(false);
-  const deleteTask = (id: Task["id"]) => {
-    return () => setTaskList((taskList) => taskList.filter((task) => task.id !== id));
+  const openAddModal = () => setToggleAddModal(true);
+  const closeAddModal = () => setToggleAddModal(false);
+
+  const closeDeleteModal = () => setToggleDeleteModal(false);
+  const openDeleteModal = (task: Task) => {
+    return () => {
+      setSelectedTaskToDelete(task);
+      setToggleDeleteModal(true);
+    };
   };
+
+  const handleDeleteTask = (task: Task) => {
+    return () => {
+      deleteTask(task.id);
+      setToggleDeleteModal(false);
+    };
+  };
+
+  const openEditModal = (task: Task) => {
+    return () => {
+      setSelectedTask(task);
+      setEditText(task.name); // ✅ sincroniza texto
+      setEditPriority(task.priority); // ✅ sincroniza prioridad
+      setToggleEditModal(true);
+    };
+  };
+
+  const closeEditModal = () => setToggleEditModal(false);
+
+  const deleteTask = (id: Task["id"]) =>
+    setTaskList((taskList) => taskList.filter((task) => task.id !== id));
 
   return (
     <section className={styles.taskSection}>
       <h2>TASK LIST</h2>
-      <button className={styles.plusButtonContainer} type="button" onClick={openModal}>
+      <button className={styles.plusButtonContainer} type="button" onClick={openAddModal}>
         <div>
           <PlusIconSvg />
           <p>Add Task</p>
@@ -112,7 +181,7 @@ export function TaskList() {
       </button>
       {isAddModalOpen && (
         <AddTaskModal
-          closeModal={closeModal}
+          closeModal={closeAddModal}
           handleTaskChange={handleTaskChange}
           handleTaskPriority={handleTaskPriority}
           handleTaskSubmit={handleTaskSubmit}
@@ -120,6 +189,26 @@ export function TaskList() {
           taskText={inputText}
         />
       )}
+
+      {isEditModalOpen && (
+        <EditTaskModal
+          closeModal={closeEditModal}
+          handleTaskChange={handleEditTaskChange}
+          handleTaskPriority={handleEditTaskPriority}
+          handleTaskSubmit={handleTaskSubmitEdit}
+          priority={editPriority}
+          selectedTask={selectedTask}
+          taskText={editText}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <DeleteTaskModal
+          closeModal={closeDeleteModal}
+          handleDeleteTask={handleDeleteTask}
+          selectedTask={selectedTaskToDelete}
+        />
+      )}
+
       <ul className={styles.taskList}>
         {taskList.length > 0 &&
           taskList.map((task: Task) => (
@@ -139,10 +228,14 @@ export function TaskList() {
               <div className={styles.status}>
                 <p>{task.status}</p>
               </div>
-              <button className={styles.actionButtons} type="button">
+              <button className={styles.actionButtons} type="button" onClick={openEditModal(task)}>
                 <EditIconSvg />
               </button>
-              <button className={styles.actionButtons} type="button" onClick={deleteTask(task.id)}>
+              <button
+                className={styles.actionButtons}
+                type="button"
+                onClick={openDeleteModal(task)}
+              >
                 <DeleteIconSvg />
               </button>
             </li>
