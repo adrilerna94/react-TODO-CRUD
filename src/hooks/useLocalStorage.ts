@@ -18,7 +18,8 @@ export function useLocalStorage<T>(key: string, defaultValue: T): [T, (value: T)
 }
 
 /*
-<T> es una variable de tipo genérico.
-Sirve para que tu función trabaje con cualquier tipo de dato, sin perder el tipado estático.
+
+📌 <T> es una variable de tipo genérico.
+   🤔 Sirve para que tu función trabaje con cualquier tipo de dato, sin perder el tipado estático.
 
 */
